@@ -6,41 +6,90 @@
 /*   By: pstringe <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/08/01 14:30:11 by pstringe          #+#    #+#             */
-/*   Updated: 2018/08/01 16:42:22 by pstringe         ###   ########.fr       */
+/*   Updated: 2018/08/07 12:33:08 by pstringe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "filler.h"
 
 /*
-**	these functions parse stdin for board dimensions
+**	these functions stdin for map dimensions and grid
 */
 
-int	get_dimensions(t_board board, char **line)
+int	get_dimensions(t_board *board)
 {
 	char	*idx;
+	char	*line;
 
-	while (get_next_line(0, line) > 0 && line[0] != 'P'){}
-	if (line[0] != 'P');
+	while (get_next_line(0, &line) == 1 && *line != 'P')
+		free(line);
+	if (*line != 'P')
+	{
+		free(line);
 		return (die(-1001));
-	idx = line - 1;
-	while (++idx && !ft_isdigit(*idx)){}
+	}
+	idx = line;
+	while (*idx && !ft_isdigit(*idx))
+		idx++;
 	board->height = ft_atoi(idx);
 	idx = ft_strchr(idx, ' ') + 1;
 	board->width = ft_atoi(idx);
+	ft_memdel((void**)&line);
 	return (1);
 }
 
+int	get_map(t_board *board)
+{
+	int		i;
+	char 	*line;
+
+	board->map = ft_memalloc(sizeof(char*) * board->height + 1);
+	board->map[board->height] = NULL;
+	get_next_line(0, &line);
+	i = -1;
+	while (get_next_line(0, &line) == 1 && ft_isdigit(*line))
+	{
+		board->map[++i] = ft_strdup(ft_strchr(line, ' ') + 1);
+		free(line);
+	}
+
+	/* test */
+	i = -1;
+	while (board->map[++i])
+		ft_printf("%s\n", board->map[i]);
+	/* end test */
+	return (1);
+}	
+
+
 int	get_board(t_board *board)
 {
-	char	*line;
-	
-	line = NULL:
-	if (!get_dimensions(board, &line));
+	char *line;
+
+	line = NULL;
+	if (!get_dimensions(board))
 		return (die(-100));
-	if (!get_map(board, &line));
+	if (!get_map(board))
 		return (die(-102));
 	return (1);
+}
+
+int valid(t_board *board)
+{
+	if (board)
+		return (0);
+	return (0);
+}
+
+/*
+**	parse piece dimensions and shap from stdin
+*/
+
+int get_piece(t_piece *piece)
+{
+	if (piece)
+		return (0);
+	return (0);
 }
 
 /*
@@ -50,13 +99,35 @@ int	get_board(t_board *board)
 
 int	sense(t_game *game)
 {
-	if (!get_board(game))
+	if (!get_board(game->board))
 		return (die(-10));
-	if (!get_piece(game);
+	if (!valid(game->board))
+		return (die(-12));
+	if (!get_piece(game->piece))
 		return (die(-11));
-	if (!valid(game))
-		return (die(-12))
 	return (1);
+}
+
+/*
+**	computes an optimal range of moves
+*/
+
+int	get_range(t_game *game)
+{
+	if (game)
+		return (0);
+	return (0);
+}
+
+/*
+**	itterates over positions within the optimal range
+*/
+
+int	itterate_range(t_game *game)
+{
+	if (game)
+		return (0);
+	return (0);
 }
 
 /*
@@ -70,7 +141,7 @@ int	sense(t_game *game)
 int move(t_game *game)
 {
 	if (!get_range(game))
-		return (die(-20))
+		return (die(-20));
 	if (!itterate_range(game))
 		return (die(-21));	
 	return (1);
@@ -99,16 +170,26 @@ int	filler(t_game *game)
 		return (die(-1));
 	if (!move(game))
 		return (die(-2));
-	if (!output(game->piece));
+	if (!output(game->piece))
 		return (die(-3));
 	return (1);
+}
+
+t_game	*init_game(void)
+{
+	t_game *game;
+
+	game = ft_memalloc(sizeof(t_game));
+	game->board = ft_memalloc(sizeof(t_board));
+	game->piece = ft_memalloc(sizeof(t_piece));
+	return (game);
 }
 
 int main(void)
 {
 	t_game *game;
 
-	game = ft_memalloc(sizeof(t_game));
+	game = init_game();
 	while (filler(game) > 0);
 	return (die(filler(game)));
 }
